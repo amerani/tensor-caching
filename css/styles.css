@@ -1,0 +1,85 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f6f5f2;
+  --text: #1b1b19;
+  --muted: #6b6a64;
+  --border: #dedcd5;
+  --grid: #e1e0d9;
+  --total: #2a78d6;
+  --storage: #eb6834;
+  --recompute: #1baf7a;
+  --radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615;
+    --surface: #1f1f1d;
+    --text: #f0efec;
+    --muted: #a3a29a;
+    --border: #34332f;
+    --grid: #2c2c2a;
+    --total: #3987e5;
+    --storage: #d95926;
+    --recompute: #199e70;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.page { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+a { color: var(--total); }
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px 28px;
+  margin-bottom: 20px;
+}
+.row { display: flex; flex-direction: column; gap: 4px; }
+.top { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.top b { font-weight: 500; color: var(--text); }
+input[type="range"] { width: 100%; }
+select {
+  width: 100%;
+  height: 36px;
+  padding: 0 8px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.card { background: var(--surface); border-radius: var(--radius); padding: 12px 14px; }
+.card p { margin: 0; }
+.card .l { font-size: 12px; color: var(--muted); }
+.card .v { font-size: 19px; font-weight: 500; }
+.card .s { font-size: 12px; color: var(--muted); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.sw-total { background: var(--total); }
+.sw-storage { background: var(--storage); }
+.sw-recompute { background: var(--recompute); }
+
+.chart-wrap { position: relative; width: 100%; height: 300px; }
+.verdict { font-size: 14px; margin: 14px 0 0; }
+footer { margin-top: 32px; font-size: 13px; color: var(--muted); }
