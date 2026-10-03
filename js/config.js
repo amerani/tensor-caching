@@ -22,7 +22,7 @@
 
     gpuPricesPerHour: [
       { id: 'neocloud', label: 'Neocloud median ($2.95 per GPU-hr)', usd: 2.95 },
-      { id: 'aws', label: 'AWS p5 on-demand ($6.88 per GPU-hr)', usd: 6.88 },
+      { id: 'aws', label: 'AWS p5 ($6.88 per GPU-hr)', usd: 6.88 },
       { id: 'marketplace', label: 'Marketplace low ($1.50 per GPU-hr)', usd: 1.5 }
     ],
 
@@ -40,7 +40,7 @@
         fixedLatencySec: 0.005
       },
       object: {
-        label: 'Object storage ($0.023/GB-mo, 1.5 GB/s)',
+        label: 'Object ($0.023/GB-mo, 1.5 GB/s)',
         usdPerGBMonth: 0.023,
         bandwidthGBps: 1.5,
         fixedLatencySec: 0.15

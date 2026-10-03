@@ -10,7 +10,6 @@
   <main class="page">
     <header>
       <h1>Re-prefill vs KV persistence</h1>
-      <p class="sub">Expected cost of keeping the KV cache of an archived conversation, versus deleting it and re-prefilling if the user returns. Adjust the inputs to find the retention sweet spot.</p>
     </header>
 
     <section class="controls" aria-label="Model inputs">
@@ -56,10 +55,6 @@
       <canvas id="ch" role="img" aria-label="Line chart of expected cost per 1,000 archived conversations versus days the KV cache is retained. Storage cost rises, re-prefill cost falls, and the total has a minimum at the best retention window if one exists.">Expected cost versus retention days: storage rises linearly, re-prefill falls exponentially, total shows the sweet spot.</canvas>
     </div>
     <p id="verdict" class="verdict" aria-live="polite"></p>
-
-    <footer>
-      <p>Model and assumptions: <a href="docs/methodology.md">docs/methodology.md</a> &middot; Analysis: <a href="docs/analysis.md">docs/analysis.md</a> &middot; Cost sources: <a href="docs/sources.md">docs/sources.md</a></p>
-    </footer>
   </main>
 
   <script src="vendor/chart.umd.js"></script>
