@@ -58,7 +58,7 @@
     const bx = sx(r.best.T), by = sy(r.best.total * k);
     const marker = '<circle cx="' + bx + '" cy="' + by + '" r="5" fill="var(--accent)"/>' +
       '<text class="best" x="' + (bx - 20) + '" y="' + (by - 20) + '" style="fill:var(--accent)">' +
-      (r.best.T === 0 ? 'best: T = 0' : 'best: T = ' + r.best.T + (r.atCap ? '+' : '') + ' d') + '</text>';
+      (r.best.T === 0 ? 'T-best = 0' : 'T-best = ' + r.best.T + (r.atCap ? '+' : '') + ' d') + '</text>';
     $('chart').innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Expected cost versus retention window">' + g +
       '<path d="' + path('storage') + '" fill="none" stroke="var(--storage)" stroke-width="1"/>' +
       '<path d="' + path('recompute') + '" fill="none" stroke="var(--recompute)" stroke-width="1"/>' +
@@ -84,7 +84,7 @@
       stat('Storage per day', money(e.cEff), shared ? 'vs ' + money(e.cSingle) + ' unshared' : '') +
       stat('Expected re-prefill', money(e.CEff), shared ? 'vs ' + money(e.CSingle) + ' unshared' : '') +
       stat('Break-even storage / day', money((inp.pReturn * e.CEff) / inp.tauDays), 'persist if storage is below this') +
-      stat('Closed-form T*', isFinite(r.closedFormT) ? r.closedFormT.toFixed(1) + ' d' : '30+ d', 'grid best: ' + r.best.T + ' d');
+      stat('Closed-form T*', isFinite(r.closedFormT) ? r.closedFormT.toFixed(1) + ' d' : '30+ d', 'grid, T-best = ' + r.best.T + ' d');
     drawChart(r);
   }
 

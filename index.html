@@ -21,7 +21,8 @@
       <input type="range" id="sharers" min="1" max="10000" step="1">
       <label>Prefix still cached on return (h) <span class="v" id="o-residency"></span></label>
       <input type="range" id="residency" min="0" max="100" step="1">
-      <select id="shareMode" style="display:none;">
+      <label>Share attribution</label>
+      <select id="shareMode">
         <option value="average">Average share (1 / sharers)</option>
       </select>
       <div id="holdRow" hidden>
@@ -43,7 +44,7 @@
     </fieldset>
   </div>
 
-  <div id="verdict" style="display:none;"></div>
+  <div id="verdict"></div>
   <div class="stats" id="stats"></div>
   <div id="chart"></div>
   <div class="legend">
