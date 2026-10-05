@@ -1,75 +1,45 @@
-(function (root) {
+/* Every constant used by the model lives here.
+ * Works as a classic <script> (sets window.TC_CONFIG) and as a Node module. */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.TC_CONFIG = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
+  return {
+    // Llama-3-70B-class GQA model, fp16: 2 x 80 x 8 x 128 x 2 = 327,680 bytes/token
+    kv: { layers: 80, kvHeads: 8, headDim: 128, bytesPerElement: 2 },
 
-  // All tunable constants live here. See docs/sources.md for where each value comes from
-  // and which ones are assumptions rather than sourced figures.
-  var CONFIG = {
-    model: {
-      name: 'Llama-3-70B-class (GQA, 8 KV heads)',
-      layers: 80,
-      kvHeads: 8,
-      headDim: 128,
-      bytesPerElement: 2, // fp16 / bf16
-      // 2 (K and V) x layers x kvHeads x headDim x bytes = 327,680 bytes (~320 KB) per token
-      kvBytesPerToken: 2 * 80 * 8 * 128 * 2
-    },
+    // Prefill: t(m) = (m / R) * (1 + m / Q) for one 8-GPU node
+    prefill: { tokensPerSecond: 20000, quadraticTokens: 200000, gpusPerNode: 8 },
 
-    prefill: {
-      gpusPerNode: 8,
-      nodeTokensPerSecond: 20000, // assumption, derived from FLOPs; see docs/sources.md
-      quadraticScaleTokens: 200000 // assumption: prefill slows by (1 + tokens / this)
-    },
-
-    gpuPricesPerHour: [
-      { id: 'neocloud', label: 'Neocloud median ($2.95 per GPU-hr)', usd: 2.95 },
-      { id: 'aws', label: 'AWS p5 ($6.88 per GPU-hr)', usd: 6.88 },
-      { id: 'marketplace', label: 'Marketplace low ($1.50 per GPU-hr)', usd: 1.5 }
+    // Storage tiers. NOTE: replace these with your own measured/quoted values.
+    tiers: [
+      { id: 'cpu',    label: 'Host memory (CPU RAM)', pricePerGBMonth: 3.0,   bandwidthGBps: 25,  latencySeconds: 0.01 },
+      { id: 'nvme',   label: 'Local NVMe SSD',        pricePerGBMonth: 0.10,  bandwidthGBps: 5,   latencySeconds: 0.05 },
+      { id: 'object', label: 'Object storage',        pricePerGBMonth: 0.023, bandwidthGBps: 1.5, latencySeconds: 0.2 }
     ],
 
-    tiers: {
-      ram: {
-        label: 'CPU RAM ($6.00/GB-mo, 50 GB/s)',
-        usdPerGBMonth: 6.0,
-        bandwidthGBps: 50,
-        fixedLatencySec: 0.002
-      },
-      ssd: {
-        label: 'NVMe SSD ($0.08/GB-mo proxy, 7 GB/s)',
-        usdPerGBMonth: 0.08,
-        bandwidthGBps: 7,
-        fixedLatencySec: 0.005
-      },
-      object: {
-        label: 'Object ($0.023/GB-mo, 1.5 GB/s)',
-        usdPerGBMonth: 0.023,
-        bandwidthGBps: 1.5,
-        fixedLatencySec: 0.15
-      }
-    },
+    compressionOptions: [1, 2, 4],
 
-    compression: [
-      { factor: 1, label: 'fp16 (1x)' },
-      { factor: 2, label: 'fp8 (2x smaller)' },
-      { factor: 4, label: '4-bit (4x smaller)' }
-    ],
+    // Retention-window grid
+    windowDays: 30,
+    stepDays: 0.5,
+    daysPerMonth: 30,
+    perConversations: 1000,
 
     defaults: {
-      tokensK: 128,
-      pReturnPct: 40,
-      tauDays: 2,
-      gpuPriceId: 'neocloud',
+      tokens: 128000,        // n: total tokens in the archived conversation
+      sharedTokens: 0,       // p: exact shared prefix (rounded down to whole blocks)
+      sharers: 1,            // n_s: conversations referencing each shared block
+      shareMode: 'average',  // 'average' (m = 1/n_s) or 'marginal'
+      holdProb: 0.5,         // marginal mode: chance each other sharer keeps the block alive
+      residency: 0,          // h: chance the shared prefix is still cached on return
+      blockTokens: 16,       // beta: tokens per KV block
+      pReturn: 0.4,          // P
+      tauDays: 2,            // tau
       tierId: 'object',
-      compression: 4
-    },
-
-    curve: { maxRetentionDays: 30, stepDays: 0.5, daysPerMonth: 30 },
-    conversationsScale: 1000
+      compression: 4,
+      gpuPrice: 2.95         // dollars per GPU-hour
+    }
   };
-
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CONFIG;
-  } else {
-    root.TC = root.TC || {};
-    root.TC.CONFIG = CONFIG;
-  }
-})(typeof window !== 'undefined' ? window : globalThis);
+});

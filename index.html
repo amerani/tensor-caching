@@ -1,65 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Re-prefill vs KV persistence for archived conversations</title>
-  <link rel="stylesheet" href="css/styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KV cache: persist or recompute?</title>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <main class="page">
-    <header>
-      <h1>Re-prefill vs KV persistence</h1>
-    </header>
+<main>
+  <h1>KV cache: persist or recompute?</h1>
+  <p class="sub">Expected cost per 1,000 conversations vs. retention window. Conversations are sets of KV blocks: a shared prefix plus unique blocks.</p>
 
-    <section class="controls" aria-label="Model inputs">
-      <div class="row">
-        <div class="top"><label for="tok">Conversation length</label><b id="o-tok"></b></div>
-        <input type="range" id="tok" min="4" max="512" step="4">
+  <div class="grid">
+    <fieldset><legend>Conversation</legend>
+      <label>Total tokens <span class="v" id="o-tokens"></span></label>
+      <input type="range" id="tokens" min="1000" max="1000000" step="1000">
+      <label>Shared prefix tokens <span class="v" id="o-sharedTokens"></span></label>
+      <input type="range" id="sharedTokens" min="0" max="200000" step="1000">
+      <label>Conversations sharing the prefix <span class="v" id="o-sharers"></span></label>
+      <input type="range" id="sharers" min="1" max="10000" step="1">
+      <label>Prefix still cached on return (h) <span class="v" id="o-residency"></span></label>
+      <input type="range" id="residency" min="0" max="100" step="1">
+      <select id="shareMode" style="display:none;">
+        <option value="average">Average share (1 / sharers)</option>
+      </select>
+      <div id="holdRow" hidden>
+        <label>Chance each other sharer keeps it alive <span class="v" id="o-holdProb"></span></label>
+        <input type="range" id="holdProb" min="0" max="100" step="1">
       </div>
-      <div class="row">
-        <div class="top"><label for="p">Chance the user ever returns</label><b id="o-p"></b></div>
-        <input type="range" id="p" min="5" max="95" step="5">
-      </div>
-      <div class="row">
-        <div class="top"><label for="t">Typical time until return</label><b id="o-t"></b></div>
-        <input type="range" id="t" min="0.5" max="14" step="0.5">
-      </div>
-      <div class="row">
-        <div class="top"><label for="tier">Storage tier</label></div>
-        <select id="tier"></select>
-      </div>
-      <div class="row">
-        <div class="top"><label for="comp">KV precision</label></div>
-        <select id="comp"></select>
-      </div>
-      <div class="row">
-        <div class="top"><label for="gpu">GPU price</label></div>
-        <select id="gpu"></select>
-      </div>
-    </section>
+    </fieldset>
+    <fieldset><legend>Return behavior</legend>
+      <label>Chance user ever returns (P) <span class="v" id="o-pReturn"></span></label>
+      <input type="range" id="pReturn" min="0" max="100" step="1">
+      <label>Typical days until return (tau) <span class="v" id="o-tauDays"></span></label>
+      <input type="range" id="tauDays" min="0.25" max="14" step="0.25">
+    </fieldset>
+    <fieldset><legend>Infrastructure</legend>
+      <label>Compute price ($/GPU-hour) <span class="v" id="o-gpuPrice"></span></label>
+      <input type="range" id="gpuPrice" min="0.5" max="10" step="0.05">
+      <label>Storage tier</label><select id="tierId"></select>
+      <label>KV compression</label><select id="compression"></select>
+    </fieldset>
+  </div>
 
-    <section class="cards" aria-label="Derived values">
-      <div class="card"><p class="l">Re-prefill cost</p><p class="v" id="m-c"></p><p class="s" id="m-cs"></p></div>
-      <div class="card"><p class="l">Storing KV</p><p class="v" id="m-s"></p><p class="s" id="m-ss"></p></div>
-      <div class="card"><p class="l">Wait on return</p><p class="v" id="m-w"></p><p class="s" id="m-ws"></p></div>
-      <div class="card"><p class="l">Best retention</p><p class="v" id="m-b"></p><p class="s" id="m-bs"></p></div>
-    </section>
-
-    <div class="legend">
-      <span><i class="sw sw-total"></i>Total expected cost</span>
-      <span><i class="sw sw-storage"></i>Storage (dashed)</span>
-      <span><i class="sw sw-recompute"></i>Re-prefill on late return (dashed)</span>
-    </div>
-    <div class="chart-wrap">
-      <canvas id="ch" role="img" aria-label="Line chart of expected cost per 1,000 archived conversations versus days the KV cache is retained. Storage cost rises, re-prefill cost falls, and the total has a minimum at the best retention window if one exists.">Expected cost versus retention days: storage rises linearly, re-prefill falls exponentially, total shows the sweet spot.</canvas>
-    </div>
-    <p id="verdict" class="verdict" aria-live="polite"></p>
-  </main>
-
-  <script src="vendor/chart.umd.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/model.js"></script>
-  <script src="js/app.js"></script>
+  <div id="verdict" style="display:none;"></div>
+  <div class="stats" id="stats"></div>
+  <div id="chart"></div>
+  <div class="legend">
+    <span><i style="background:var(--storage)"></i>Storage</span>
+    <span><i style="background:var(--recompute)"></i>Expected re-prefill</span>
+    <span><i style="background:var(--total)"></i>Total</span>
+  </div>
+</main>
+<script src="js/config.js"></script>
+<script src="js/model.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
